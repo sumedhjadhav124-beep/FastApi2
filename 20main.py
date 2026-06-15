@@ -1,14 +1,13 @@
-# app.py
-from fastapi import FastAPI, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, Request, Form, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, String, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker, Session
 
 # ==========================================
-# 1. DATABASE SETUP (SQLAlchemy)
+# 1. DATABASE SETUP
 # ==========================================
-# 'check_same_thread': False is required for SQLite when used with FastAPI
-engine = create_engine("sqlite:///fastapi_users.db", connect_args={"check_same_thread": False})
+engine = create_engine("sqlite:///final_app.db", connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Base(DeclarativeBase):
@@ -20,32 +19,14 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(30))
     email: Mapped[str] = mapped_column(String(50), unique=True)
 
-# Create the tables
 Base.metadata.create_all(bind=engine)
 
 # ==========================================
-# 2. DATA VALIDATION (Pydantic)
-# ==========================================
-# Schema for creating a user (User sends this)
-class UserCreate(BaseModel):
-    name: str
-    email: str
-
-# Schema for reading a user (API returns this)
-class UserResponse(BaseModel):
-    id: int
-    name: str
-    email: str
-
-    class Config:
-        from_attributes = True  # Allows Pydantic to read SQLAlchemy objects
-
-# ==========================================
-# 3. FASTAPI APPLICATION
+# 2. FASTAPI & JINJA2 SETUP
 # ==========================================
 app = FastAPI()
+templates = Jinja2Templates(directory="frontend")
 
-# Dependency: Opens a database session for each request and closes it after
 def get_db():
     db = SessionLocal()
     try:
@@ -53,48 +34,57 @@ def get_db():
     finally:
         db.close()
 
-# --- CREATE ---
-@app.post("/users/", response_model=UserResponse)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    # Check if email already exists
-    stmt = select(User).where(User.email == user.email)
-    existing_user = db.scalars(stmt).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create and save new user
-    db_user = User(name=user.name, email=user.email)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user) # Retrieves the newly generated ID
-    return db_user
+# ==========================================
+# 3. ROUTES (Returning HTML Pages)
+# ==========================================
 
-# --- READ ALL ---
-@app.get("/users/", response_model=list[UserResponse])
-def read_users(db: Session = Depends(get_db)):
+# --- READ (Homepage) ---
+@app.get("/", response_class=HTMLResponse)
+def home_page(request: Request, db: Session = Depends(get_db)):
     users = db.scalars(select(User)).all()
-    return users
+    return templates.TemplateResponse(
+        request=request, 
+        name="index.html", 
+        context={"users": users}
+    )
+
+# --- CREATE ---
+@app.get("/create", response_class=HTMLResponse)
+def create_page(request: Request):
+    return templates.TemplateResponse(request=request, name="create.html")
+
+@app.post("/create")
+def create_user(name: str = Form(...), email: str = Form(...), db: Session = Depends(get_db)):
+    new_user = User(name=name, email=email)
+    db.add(new_user)
+    db.commit()
+    # 303 status code tells the browser to redirect back to the homepage
+    return RedirectResponse(url="/", status_code=303)
 
 # --- UPDATE ---
-@app.put("/users/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, updated_user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.get(User, user_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    db_user.name = updated_user.name
-    db_user.email = updated_user.email
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+@app.get("/update/{user_id}", response_class=HTMLResponse)
+def update_page(request: Request, user_id: int, db: Session = Depends(get_db)):
+    user = db.get(User, user_id)
+    return templates.TemplateResponse(
+        request=request, 
+        name="update.html", 
+        context={"user": user}
+    )
+
+@app.post("/update/{user_id}")
+def update_user(user_id: int, name: str = Form(...), email: str = Form(...), db: Session = Depends(get_db)):
+    user = db.get(User, user_id)
+    if user:
+        user.name = name
+        user.email = email
+        db.commit()
+    return RedirectResponse(url="/", status_code=303)
 
 # --- DELETE ---
-@app.delete("/users/{user_id}")
+@app.get("/delete/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = db.get(User, user_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    db.delete(db_user)
-    db.commit()
-    return {"message": f"User {user_id} deleted successfully"}
+    user = db.get(User, user_id)
+    if user:
+        db.delete(user)
+        db.commit()
+    return RedirectResponse(url="/", status_code=303)
