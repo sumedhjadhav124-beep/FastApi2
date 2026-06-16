@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Awesome Posts</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <h1>✨ Blog Posts</h1>
+          <p class="meta">Discover inspiring stories and insights</p>
+        </div>
+        <div class="header-actions">
+          <a href="/" class="btn btn-muted btn-sm">← Home</a>
+          <a href="/blog/create" class="btn btn-blue">+ New Post</a>
+        </div>
+      </div>
+
+      {% if posts %}
+        <div class="posts-list">
+          {% for post in posts %}
+            <div class="post-card">
+              <h3><a href="/blog/{{ post.id }}">{{ post.title }}</a></h3>
+              <p class="meta">
+                <span style="font-weight: 600; color: #667eea;">{{ post.author or 'Anonymous' }}</span>
+                {% if post.created_at %} 
+                  <span style="color: #6b7280;">• {{ post.created_at.strftime('%b %d, %Y') }}</span>
+                {% endif %}
+              </p>
+              <p class="excerpt">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+              <div class="post-actions">
+                <a href="/blog/{{ post.id }}" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)); color: #667eea; border: 1px solid rgba(102, 126, 234, 0.2);">Read More →</a>
+                <a href="/blog/update/{{ post.id }}" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2);">Edit</a>
+                <a href="/blog/delete/{{ post.id }}" class="delete" onclick="return confirm('Are you sure you want to delete this post?');" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1)); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">Delete</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="text-align: center; padding: 60px 40px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); border-radius: 12px; border: 2px dashed rgba(102, 126, 234, 0.2);">
+          <h2 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px;">📚 No posts yet</h2>
+          <p style="color: #6b7280; margin-bottom: 24px; font-size: 1.05rem;">Your blog is waiting for amazing content!</p>
+          <a href="/blog/create" class="btn btn-blue">Create Your First Post</a>
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

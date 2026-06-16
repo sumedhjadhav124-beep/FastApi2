@@ -2,23 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Create User</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f3f4f6; display: flex; justify-content: center; padding-top: 100px; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 300px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 10px; background-color: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New User</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="card">
-        <h2>Add New User</h2>
+    <div class="container" style="max-width: 500px;">
+        <div class="nav-links">
+            <a href="/">← Back to Dashboard</a>
+        </div>
+        
+        <h1>👤 Add New User</h1>
+        <p style="color: #6b7280; margin-bottom: 32px; font-size: 1.05rem;">Register a new user to your system</p>
+        
         <form action="/create" method="post">
-            <input type="text" name="name" placeholder="Full Name" required>
-            <input type="email" name="email" placeholder="Email Address" required>
-            <button type="submit" class="btn">Save User</button>
+            <p>
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" placeholder="John Doe" required>
+            </p>
+            
+            <p>
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+            </p>
+            
+            <div style="display: flex; gap: 12px; margin-top: 32px;">
+                <button type="submit" class="btn btn-blue">✓ Save User</button>
+                <a href="/" class="btn btn-muted">Cancel</a>
+            </div>
         </form>
-        <br><a href="/" style="font-size: 14px; color: #666; text-decoration: none;">&larr; Back to Dashboard</a>
     </div>
 </body>
 </html>

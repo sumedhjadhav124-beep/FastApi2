@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Blog Post</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container" style="max-width: 700px;">
+      <div class="nav-links">
+        <a href="/blog">← Back to Blog</a>
+      </div>
+      
+      <h1>✍️ Create a New Post</h1>
+      <p style="color: #6b7280; margin-bottom: 32px; font-size: 1.05rem;">Share your thoughts and inspire others</p>
+      
+      <form action="/blog/create" method="post">
+        <p>
+          <label for="title">Post Title *</label>
+          <input type="text" id="title" name="title" placeholder="Enter a captivating title..." required>
+        </p>
+        
+        <p>
+          <label for="author">Author Name</label>
+          <input type="text" id="author" name="author" placeholder="Your name (optional)">
+        </p>
+        
+        <p>
+          <label for="content">Content *</label>
+          <textarea id="content" name="content" placeholder="Write your amazing story here..." required></textarea>
+        </p>
+        
+        <div style="display: flex; gap: 12px; margin-top: 32px;">
+          <button type="submit" class="btn btn-blue">📤 Publish Post</button>
+          <a href="/blog" class="btn btn-muted">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

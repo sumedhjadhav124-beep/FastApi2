@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Blog Post</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container" style="max-width: 700px;">
+      <div class="nav-links">
+        <a href="/blog">← Back to Blog</a>
+      </div>
+      
+      {% if post %}
+        <h1>✏️ Update Your Post</h1>
+        <p style="color: #6b7280; margin-bottom: 32px; font-size: 1.05rem;">Keep your content fresh and relevant</p>
+        
+        <form action="/blog/update/{{ post.id }}" method="post">
+          <p>
+            <label for="title">Post Title *</label>
+            <input type="text" id="title" name="title" value="{{ post.title }}" required>
+          </p>
+          
+          <p>
+            <label for="author">Author Name</label>
+            <input type="text" id="author" name="author" value="{{ post.author or '' }}">
+          </p>
+          
+          <p>
+            <label for="content">Content *</label>
+            <textarea id="content" name="content" required>{{ post.content }}</textarea>
+          </p>
+          
+          <div style="display: flex; gap: 12px; margin-top: 32px;">
+            <button type="submit" class="btn btn-green">💾 Save Changes</button>
+            <a href="/blog/{{ post.id }}" class="btn btn-muted">Cancel</a>
+          </div>
+        </form>
+      {% else %}
+        <div style="text-align: center; padding: 80px 40px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); border-radius: 12px; border: 2px dashed rgba(102, 126, 234, 0.2);">
+          <h1 style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px;">😕 Post Not Found</h1>
+          <p style="color: #6b7280; margin-bottom: 24px; font-size: 1.1rem;">The post you're trying to edit doesn't exist.</p>
+          <a href="/blog" class="btn btn-blue">← Back to Blog</a>
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
